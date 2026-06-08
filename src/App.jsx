@@ -119,6 +119,7 @@ function App() {
   const [rescueMode, setRescueMode] = useState(false);
   const [activeFocus, setActiveFocus] = useState("");
   const [focusSeconds, setFocusSeconds] = useState(25 * 60);
+  const [focusMessage, setFocusMessage] = useState("");
   const [completedSessions, setCompletedSessions] = useState(savedState?.completedSessions || []);
   const [studentProfile, setStudentProfile] = useState(savedState?.studentProfile || defaultStudentProfile);
   const [profileDraft, setProfileDraft] = useState(savedState?.studentProfile || defaultStudentProfile);
@@ -205,10 +206,11 @@ function App() {
   const startFocus = (subjectName) => {
     setActiveFocus(subjectName);
     setFocusSeconds(25 * 60);
+    setFocusMessage(`${subjectName} focus timer started.`);
   };
 
-  const completeFocusSession = (subjectName) => {
-    const minutes = Math.max(1, Math.round((25 * 60 - focusSeconds) / 60));
+  const completeFocusSession = (subjectName, demoMinutes) => {
+    const minutes = demoMinutes || Math.max(1, Math.round((25 * 60 - focusSeconds) / 60));
     setCompletedSessions((current) => [
       {
         id: `${Date.now()}-${subjectName}`,
@@ -221,6 +223,7 @@ function App() {
     ].slice(0, 18));
     setActiveFocus("");
     setFocusSeconds(25 * 60);
+    setFocusMessage(`${minutes}-minute ${subjectName} session recorded in Completed Focus Analytics.`);
   };
 
   const saveStudentProfile = () => {
@@ -247,6 +250,7 @@ function App() {
     setStudentProfile(defaultStudentProfile);
     setProfileDraft(defaultStudentProfile);
     setSyncMessage("Demo data restored and local cloud snapshot reset.");
+    setFocusMessage("");
     setNotes(
       "Graph traversal includes BFS and DFS. BFS uses a queue and is useful for shortest path in unweighted graphs. DFS uses recursion or a stack and helps with cycle detection, topological sorting, and connected components."
     );
@@ -439,6 +443,7 @@ function App() {
                       </>
                     )}
                   </div>
+                  {focusMessage.includes(item.name) && <p className="focus-message">{focusMessage}</p>}
                 </div>
               </article>
             ))}
@@ -636,6 +641,15 @@ function App() {
           <div className="panel-head">
             <h2>Completed Focus Analytics</h2>
             <p>Tracks finished focus sessions so students can see effort, consistency, and strongest subjects.</p>
+          </div>
+          <div className="analytics-actions">
+            <button
+              className="primary-button"
+              onClick={() => completeFocusSession(plan[0]?.name || "Priority review", 25)}
+            >
+              Record demo 25-min session
+            </button>
+            {focusMessage && <span>{focusMessage}</span>}
           </div>
           <div className="analytics-grid">
             <article>
