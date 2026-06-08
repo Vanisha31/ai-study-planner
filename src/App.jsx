@@ -626,6 +626,8 @@ function App() {
             <div className="legend-row">
               <span><i className="target-dot" /> Ideal syllabus burn-down</span>
               <span><i className="actual-dot" /> Current confidence trajectory</span>
+              <span>Weighted confidence: {burnDown.weightedConfidence}%</span>
+              <span>Projected completion: {burnDown.projectedCompletion}%</span>
             </div>
           </div>
         </section>
@@ -1072,20 +1074,28 @@ function generateFlashcards(text) {
 
 function buildBurnDown(subjects) {
   const nearestExamDays = Math.max(1, Math.min(...subjects.map((subject) => daysUntil(subject.examDate))));
-  const totalVolume = subjects.reduce((sum, subject) => sum + subject.difficulty * (100 - subject.confidence), 0) || 100;
+  const totalDifficulty = subjects.reduce((sum, subject) => sum + subject.difficulty, 0) || 1;
+  const weightedConfidence = subjects.reduce(
+    (sum, subject) => sum + subject.confidence * subject.difficulty,
+    0
+  ) / totalDifficulty;
+  const examPressure = clamp((21 - nearestExamDays) / 21, 0, 1);
+  const projectedCompletion = clamp(
+    0.3 + weightedConfidence / 100 * 0.62 - examPressure * 0.1,
+    0.25,
+    0.94
+  );
   const width = 600;
   const height = 170;
   const startX = 20;
   const startY = 20;
   const points = Array.from({ length: 7 }, (_, index) => {
     const progress = index / 6;
-    const targetRemaining = totalVolume * (1 - progress);
-    const actualRemaining = totalVolume * Math.pow(1 - progress * 0.78, 1.15);
     const x = startX + progress * width;
     return {
       x,
-      targetY: startY + (targetRemaining / totalVolume) * height,
-      actualY: startY + (actualRemaining / totalVolume) * height,
+      targetY: startY + progress * height,
+      actualY: startY + Math.pow(progress, 1.08) * height * projectedCompletion,
     };
   });
 
@@ -1094,6 +1104,8 @@ function buildBurnDown(subjects) {
     actualPoints: points.map((point) => `${point.x},${point.actualY}`).join(" "),
     markers: points.map((point) => ({ x: point.x, y: point.actualY })),
     nearestExamDays,
+    weightedConfidence: Math.round(weightedConfidence),
+    projectedCompletion: Math.round(projectedCompletion * 100),
   };
 }
 
