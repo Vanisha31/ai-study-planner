@@ -26,6 +26,9 @@ StudySync AI solves this by turning a student's current situation into a practic
 - Smart Notes Companion that converts rough notes into summaries and flashcards
 - Career Bridge that connects topics with placement or interview-ready explanations
 - Curriculum burn-down chart for visual progress tracking
+- Google Calendar export links for adaptive weekly study blocks
+- Student login/workspace demo with local cloud-sync snapshots
+- Completed focus-session analytics with total time, consistency, and top subject
 - Browser storage so subjects, notes, goals, and settings stay saved after refresh
 - Export option to download the generated plan as a text file
 
@@ -81,10 +84,7 @@ No backend or environment variables are required for the current version.
 ## Future Scope
 
 - Add real LLM-powered note summarization
-- Add Google Calendar sync
-- Add student login and cloud sync
 - Add voice-based task capture
-- Add analytics for completed focus sessions
 - Add peer study-room matching
 
 ## Demo Positioning

@@ -100,6 +100,9 @@ h3 {
 .project-panel,
 .career-panel,
 .schedule-panel,
+.account-panel,
+.calendar-panel,
+.analytics-panel,
 .risk-panel,
 .brief-panel,
 .burndown-panel {
@@ -159,6 +162,9 @@ h3 {
 .project-panel,
 .career-panel,
 .schedule-panel,
+.account-panel,
+.calendar-panel,
+.analytics-panel,
 .risk-panel,
 .brief-panel,
 .burndown-panel {
@@ -276,6 +282,9 @@ textarea {
 .project-panel,
 .career-panel,
 .schedule-panel,
+.account-panel,
+.calendar-panel,
+.analytics-panel,
 .risk-panel,
 .brief-panel,
 .burndown-panel {
@@ -291,6 +300,60 @@ textarea {
 .alert-grid {
   display: grid;
   gap: 14px;
+}
+
+.account-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.sync-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid #c7d2fe;
+  border-radius: 8px;
+  background: #eef2ff;
+}
+
+.sync-card span,
+.analytics-grid span,
+.calendar-card span {
+  color: #0f766e;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.sync-card strong {
+  display: block;
+  margin-top: 4px;
+  color: #101827;
+  font-size: 1.25rem;
+}
+
+.sync-card p,
+.sync-message,
+.calendar-card p,
+.analytics-grid p {
+  margin-bottom: 0;
+  color: #64748b;
+}
+
+.sync-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.sync-message {
+  margin-top: 12px;
+  font-weight: 700;
 }
 
 .hero-proof {
@@ -488,6 +551,34 @@ textarea {
   grid-template-columns: repeat(7, minmax(0, 1fr));
 }
 
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.calendar-card {
+  display: grid;
+  gap: 8px;
+  min-height: 180px;
+  padding: 16px;
+  border: 1px solid #fed7aa;
+  border-radius: 8px;
+  background: #fff7ed;
+}
+
+.calendar-card a {
+  align-self: end;
+  width: fit-content;
+  border-radius: 8px;
+  background: #172033;
+  color: #ffffff;
+  padding: 9px 11px;
+  font-size: 0.84rem;
+  font-weight: 900;
+  text-decoration: none;
+}
+
 .day-card {
   display: grid;
   gap: 8px;
@@ -599,6 +690,48 @@ textarea {
 
 .alert-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.analytics-grid article {
+  min-height: 150px;
+  padding: 16px;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  background: #f0fdf4;
+}
+
+.analytics-grid strong {
+  display: block;
+  margin: 8px 0;
+  color: #14532d;
+  font-size: 1.65rem;
+}
+
+.session-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.session-list div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 700;
+}
+
+.session-list strong {
+  color: #101827;
 }
 
 .risk-card {
@@ -751,6 +884,9 @@ textarea {
   .project-panel,
   .career-panel,
   .schedule-panel,
+.account-panel,
+.calendar-panel,
+.analytics-panel,
   .risk-panel,
   .brief-panel,
   .burndown-panel {
@@ -767,9 +903,22 @@ textarea {
   .career-grid,
   .form-grid,
   .week-grid,
+  .account-grid,
+  .calendar-grid,
+  .analytics-grid,
   .alert-grid,
   .flashcard-grid {
     grid-template-columns: 1fr;
+  }
+
+  .sync-card,
+  .session-list div {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .sync-actions {
+    justify-content: flex-start;
   }
 }
 

@@ -66,6 +66,12 @@ const goalProfiles = {
   },
 };
 
+const defaultStudentProfile = {
+  name: "Vanisha",
+  email: "student@studysync.ai",
+  cloudId: "STUDY-2026",
+};
+
 function loadSavedState() {
   if (typeof window === "undefined") return null;
 
@@ -113,6 +119,10 @@ function App() {
   const [rescueMode, setRescueMode] = useState(false);
   const [activeFocus, setActiveFocus] = useState("");
   const [focusSeconds, setFocusSeconds] = useState(25 * 60);
+  const [completedSessions, setCompletedSessions] = useState(savedState?.completedSessions || []);
+  const [studentProfile, setStudentProfile] = useState(savedState?.studentProfile || defaultStudentProfile);
+  const [profileDraft, setProfileDraft] = useState(savedState?.studentProfile || defaultStudentProfile);
+  const [syncMessage, setSyncMessage] = useState(savedState?.syncMessage || "Last cloud sync snapshot is ready locally.");
   const [uploadMessage, setUploadMessage] = useState("");
   const [notes, setNotes] = useState(
     savedState?.notes ||
@@ -129,6 +139,7 @@ function App() {
   const summary = useMemo(() => summarizeNotes(notes), [notes]);
   const flashcards = useMemo(() => generateFlashcards(notes), [notes]);
   const burnDown = useMemo(() => buildBurnDown(subjects), [subjects]);
+  const focusAnalytics = useMemo(() => buildFocusAnalytics(completedSessions, plan), [completedSessions, plan]);
 
   const readiness = useMemo(() => {
     if (!subjects.length) return 0;
@@ -149,9 +160,31 @@ function App() {
   useEffect(() => {
     window.localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ subjects, weeklyHours, dailyEnergy, chronotype, goal, missedHours, notes })
+      JSON.stringify({
+        subjects,
+        weeklyHours,
+        dailyEnergy,
+        chronotype,
+        goal,
+        missedHours,
+        notes,
+        completedSessions,
+        studentProfile,
+        syncMessage,
+      })
     );
-  }, [chronotype, dailyEnergy, goal, missedHours, notes, subjects, weeklyHours]);
+  }, [
+    chronotype,
+    completedSessions,
+    dailyEnergy,
+    goal,
+    missedHours,
+    notes,
+    studentProfile,
+    subjects,
+    syncMessage,
+    weeklyHours,
+  ]);
 
   const addSubject = () => {
     if (!subjectDraft.name.trim() || !subjectDraft.examDate) return;
@@ -174,6 +207,35 @@ function App() {
     setFocusSeconds(25 * 60);
   };
 
+  const completeFocusSession = (subjectName) => {
+    const minutes = Math.max(1, Math.round((25 * 60 - focusSeconds) / 60));
+    setCompletedSessions((current) => [
+      {
+        id: `${Date.now()}-${subjectName}`,
+        subject: subjectName,
+        minutes,
+        method: plan.find((item) => item.name === subjectName)?.method || "Focused revision",
+        date: new Date().toISOString(),
+      },
+      ...current,
+    ].slice(0, 18));
+    setActiveFocus("");
+    setFocusSeconds(25 * 60);
+  };
+
+  const saveStudentProfile = () => {
+    setStudentProfile({
+      name: profileDraft.name.trim() || "StudySync Student",
+      email: profileDraft.email.trim() || "student@studysync.ai",
+      cloudId: profileDraft.cloudId.trim() || "STUDY-2026",
+    });
+    setSyncMessage(`Cloud sync snapshot saved for ${profileDraft.email || "student"} at ${new Date().toLocaleTimeString()}.`);
+  };
+
+  const syncWorkspace = () => {
+    setSyncMessage(`Plan, notes, subjects, and ${completedSessions.length} focus session${completedSessions.length === 1 ? "" : "s"} synced locally for ${studentProfile.cloudId}.`);
+  };
+
   const resetDemo = () => {
     setSubjects(defaultSubjects);
     setWeeklyHours(18);
@@ -181,6 +243,10 @@ function App() {
     setChronotype("morning");
     setGoal("semester");
     setMissedHours(2);
+    setCompletedSessions([]);
+    setStudentProfile(defaultStudentProfile);
+    setProfileDraft(defaultStudentProfile);
+    setSyncMessage("Demo data restored and local cloud snapshot reset.");
     setNotes(
       "Graph traversal includes BFS and DFS. BFS uses a queue and is useful for shortest path in unweighted graphs. DFS uses recursion or a stack and helps with cycle detection, topological sorting, and connected components."
     );
@@ -363,15 +429,63 @@ function App() {
                       Start focus
                     </button>
                     {activeFocus === item.name && (
-                      <strong className={focusSeconds === 0 ? "timer done" : "timer"}>
-                        {focusSeconds === 0 ? "Session complete" : formatTime(focusSeconds)}
-                      </strong>
+                      <>
+                        <strong className={focusSeconds === 0 ? "timer done" : "timer"}>
+                          {focusSeconds === 0 ? "Session complete" : formatTime(focusSeconds)}
+                        </strong>
+                        <button className="ghost-button" onClick={() => completeFocusSession(item.name)}>
+                          Mark complete
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>
               </article>
             ))}
           </div>
+        </section>
+
+        <section className="account-panel">
+          <div className="panel-head">
+            <h2>Student Login and Cloud Sync</h2>
+            <p>A demo student workspace that saves the planner, notes, and progress snapshot in browser storage.</p>
+          </div>
+          <div className="account-grid">
+            <label>
+              Student name
+              <input
+                value={profileDraft.name}
+                onChange={(event) => setProfileDraft((draft) => ({ ...draft, name: event.target.value }))}
+              />
+            </label>
+            <label>
+              Email
+              <input
+                type="email"
+                value={profileDraft.email}
+                onChange={(event) => setProfileDraft((draft) => ({ ...draft, email: event.target.value }))}
+              />
+            </label>
+            <label>
+              Cloud ID
+              <input
+                value={profileDraft.cloudId}
+                onChange={(event) => setProfileDraft((draft) => ({ ...draft, cloudId: event.target.value }))}
+              />
+            </label>
+          </div>
+          <div className="sync-card">
+            <div>
+              <span>Signed in as</span>
+              <strong>{studentProfile.name}</strong>
+              <p>{studentProfile.email} - Workspace {studentProfile.cloudId}</p>
+            </div>
+            <div className="sync-actions">
+              <button className="primary-button" onClick={saveStudentProfile}>Save login</button>
+              <button className="ghost-button" onClick={syncWorkspace}>Sync workspace</button>
+            </div>
+          </div>
+          <p className="sync-message">{syncMessage}</p>
         </section>
 
         <section className="subject-panel">
@@ -477,6 +591,25 @@ function App() {
           </div>
         </section>
 
+        <section className="calendar-panel">
+          <div className="panel-head">
+            <h2>Google Calendar Sync</h2>
+            <p>Export the adaptive week plan into Google Calendar with ready-to-add study events.</p>
+          </div>
+          <div className="calendar-grid">
+            {weeklySchedule.slice(0, 4).map((day, index) => (
+              <article key={`${day.day}-${day.subject}`} className="calendar-card">
+                <span>{day.day}</span>
+                <strong>{day.subject}</strong>
+                <p>{day.task}</p>
+                <a href={buildGoogleCalendarUrl(day, index)} target="_blank" rel="noreferrer">
+                  Add to Google Calendar
+                </a>
+              </article>
+            ))}
+          </div>
+        </section>
+
         <section className="burndown-panel">
           <div className="panel-head">
             <h2>Curriculum Burn-down</h2>
@@ -494,6 +627,43 @@ function App() {
               <span><i className="target-dot" /> Ideal syllabus burn-down</span>
               <span><i className="actual-dot" /> Current confidence trajectory</span>
             </div>
+          </div>
+        </section>
+
+        <section className="analytics-panel">
+          <div className="panel-head">
+            <h2>Completed Focus Analytics</h2>
+            <p>Tracks finished focus sessions so students can see effort, consistency, and strongest subjects.</p>
+          </div>
+          <div className="analytics-grid">
+            <article>
+              <span>Total focus</span>
+              <strong>{focusAnalytics.totalMinutes} min</strong>
+              <p>{focusAnalytics.sessionCount} completed sessions</p>
+            </article>
+            <article>
+              <span>Best subject</span>
+              <strong>{focusAnalytics.topSubject}</strong>
+              <p>{focusAnalytics.topSubjectMinutes} focused minutes</p>
+            </article>
+            <article>
+              <span>Consistency</span>
+              <strong>{focusAnalytics.streakLabel}</strong>
+              <p>{focusAnalytics.tip}</p>
+            </article>
+          </div>
+          <div className="session-list">
+            {completedSessions.length ? completedSessions.slice(0, 5).map((session) => (
+              <div key={session.id}>
+                <strong>{session.subject}</strong>
+                <span>{session.minutes} min - {session.method}</span>
+              </div>
+            )) : (
+              <div>
+                <strong>No completed sessions yet</strong>
+                <span>Start a focus block and mark it complete to create analytics.</span>
+              </div>
+            )}
           </div>
         </section>
 
@@ -570,7 +740,7 @@ function App() {
             </article>
             <article>
               <h3>Upcoming scope</h3>
-              <p>Can grow into calendar sync, peer groups, voice doubt capture, focus analytics, and placement preparation roadmaps.</p>
+              <p>Now includes calendar export, student workspace sync, and focus analytics; next it can grow into voice doubt capture and peer study rooms.</p>
             </article>
           </div>
         </section>
@@ -607,6 +777,45 @@ function App() {
       </main>
     </div>
   );
+}
+
+function buildGoogleCalendarUrl(day, index) {
+  const start = new Date();
+  start.setDate(start.getDate() + index);
+  start.setHours(18 + (index % 2), 0, 0, 0);
+  const end = new Date(start);
+  end.setMinutes(end.getMinutes() + 60);
+  const formatCalendarDate = (date) => date.toISOString().replace(/[-:]|\.\d{3}/g, "");
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: `StudySync AI: ${day.subject}`,
+    details: `${day.task} Duration: ${day.duration}. Planned by StudySync AI.`,
+    dates: `${formatCalendarDate(start)}/${formatCalendarDate(end)}`,
+  });
+
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+function buildFocusAnalytics(completedSessions, plan) {
+  const totalMinutes = completedSessions.reduce((sum, session) => sum + session.minutes, 0);
+  const subjectTotals = completedSessions.reduce((totals, session) => {
+    totals[session.subject] = (totals[session.subject] || 0) + session.minutes;
+    return totals;
+  }, {});
+  const topEntry = Object.entries(subjectTotals).sort((a, b) => b[1] - a[1])[0];
+  const uniqueDays = new Set(completedSessions.map((session) => session.date.slice(0, 10))).size;
+  const nextPriority = plan[0]?.name || "your top priority";
+
+  return {
+    totalMinutes,
+    sessionCount: completedSessions.length,
+    topSubject: topEntry?.[0] || nextPriority,
+    topSubjectMinutes: topEntry?.[1] || 0,
+    streakLabel: uniqueDays ? `${uniqueDays} active day${uniqueDays === 1 ? "" : "s"}` : "Start today",
+    tip: completedSessions.length
+      ? `Next best session: ${nextPriority} with active recall.`
+      : `Begin with ${nextPriority} to create your first progress signal.`,
+  };
 }
 
 function buildPlan(subjects, weeklyHours, dailyEnergy) {
