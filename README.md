@@ -19,6 +19,7 @@ StudySync AI solves this by turning a student's current situation into a practic
 ## Key Features
 
 - AI Priority Engine that ranks subjects by exam urgency, difficulty, confidence, and available weekly hours
+- Backend AI Accuracy Engine that explains priority score breakdown, data quality, forecast accuracy, and intervention suggestions
 - Personal AI Study Coach that tells the student what to study today
 - Rescue Mode that rebuilds the week when study hours are missed
 - 7-day adaptive schedule based on morning, balanced, or night study style
@@ -52,6 +53,20 @@ The app helps students decide what deserves attention first, instead of treating
 - JavaScript
 - CSS
 - Local browser storage
+- Service-based planning logic in `src/services/aiPlannerBackend.js`
+
+## Backend Logic Layer
+
+The current project uses a frontend service module as a simulated backend decision engine. This module accepts subject details, exam dates, difficulty, confidence, syllabus topics, missed hours, and completed focus sessions. It then calculates:
+
+- priority score for every subject
+- urgency, difficulty, confidence gap, syllabus load, and momentum components
+- forecast accuracy percentage
+- data quality score
+- study consistency score
+- suggested backend intervention for improving the weekly plan
+
+This makes the project stronger than a static timetable because the planner can explain why one subject is more important than another.
 
 ## Run Locally
 

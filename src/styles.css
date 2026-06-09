@@ -105,6 +105,7 @@ h3 {
 .analytics-panel,
 .risk-panel,
 .brief-panel,
+.backend-panel,
 .burndown-panel {
   border: 1px solid rgba(148, 163, 184, 0.28);
   border-radius: 8px;
@@ -167,6 +168,7 @@ h3 {
 .analytics-panel,
 .risk-panel,
 .brief-panel,
+.backend-panel,
 .burndown-panel {
   padding: 22px;
 }
@@ -287,6 +289,7 @@ textarea {
 .analytics-panel,
 .risk-panel,
 .brief-panel,
+.backend-panel,
 .burndown-panel {
   grid-column: 2;
 }
@@ -447,6 +450,110 @@ textarea {
 .timeline-item p {
   margin-bottom: 0;
   color: #64748b;
+}
+
+.backend-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.backend-summary article {
+  min-height: 152px;
+  padding: 16px;
+  border: 1px solid #bae6fd;
+  border-radius: 8px;
+  background: #f0f9ff;
+}
+
+.backend-summary span,
+.score-row.header span {
+  color: #0369a1;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.backend-summary strong {
+  display: block;
+  margin: 8px 0;
+  color: #0c4a6e;
+  font-size: 1.9rem;
+}
+
+.backend-summary p {
+  margin-bottom: 0;
+  color: #475569;
+}
+
+.score-table {
+  overflow: hidden;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.score-row {
+  display: grid;
+  grid-template-columns: 1fr 0.8fr 1.4fr 1.6fr;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border-top: 1px solid #e2e8f0;
+  color: #475569;
+  font-size: 0.92rem;
+}
+
+.score-row:first-child {
+  border-top: 0;
+}
+
+.score-row.header {
+  background: #eff6ff;
+}
+
+.score-row strong {
+  color: #101827;
+}
+
+.level {
+  width: fit-content;
+  border-radius: 999px;
+  padding: 6px 9px;
+  color: #ffffff;
+  font-weight: 900;
+}
+
+.level.critical {
+  background: #be123c;
+}
+
+.level.high {
+  background: #c2410c;
+}
+
+.level.medium {
+  background: #0369a1;
+}
+
+.level.low {
+  background: #15803d;
+}
+
+.backend-log {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.backend-log span {
+  padding: 10px 12px;
+  border-left: 4px solid #0ea5e9;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 700;
 }
 
 .rank {
@@ -903,11 +1010,12 @@ textarea {
   .project-panel,
   .career-panel,
   .schedule-panel,
-.account-panel,
-.calendar-panel,
-.analytics-panel,
+  .account-panel,
+  .calendar-panel,
+  .analytics-panel,
   .risk-panel,
   .brief-panel,
+  .backend-panel,
   .burndown-panel {
     grid-column: auto;
   }
@@ -925,8 +1033,13 @@ textarea {
   .account-grid,
   .calendar-grid,
   .analytics-grid,
+  .backend-summary,
   .alert-grid,
   .flashcard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .score-row {
     grid-template-columns: 1fr;
   }
 

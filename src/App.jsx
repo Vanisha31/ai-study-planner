@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { buildBackendInsights } from "./services/aiPlannerBackend";
 
 const STORAGE_KEY = "ai-study-planner-v2";
 
@@ -141,6 +142,10 @@ function App() {
   const flashcards = useMemo(() => generateFlashcards(notes), [notes]);
   const burnDown = useMemo(() => buildBurnDown(subjects), [subjects]);
   const focusAnalytics = useMemo(() => buildFocusAnalytics(completedSessions, plan), [completedSessions, plan]);
+  const backendInsights = useMemo(
+    () => buildBackendInsights(subjects, weeklyHours, missedHours, completedSessions),
+    [completedSessions, missedHours, subjects, weeklyHours]
+  );
 
   const readiness = useMemo(() => {
     if (!subjects.length) return 0;
@@ -447,6 +452,52 @@ function App() {
                 </div>
               </article>
             ))}
+          </div>
+        </section>
+
+        <section className="backend-panel">
+          <div className="panel-head">
+            <h2>Backend AI Accuracy Engine</h2>
+            <p>Explains how the logic layer scores priorities, forecasts readiness, and improves schedule accuracy.</p>
+          </div>
+          <div className="backend-summary">
+            <article>
+              <span>Forecast accuracy</span>
+              <strong>{backendInsights.forecastScore}%</strong>
+              <p>{backendInsights.intervention}</p>
+            </article>
+            <article>
+              <span>Data quality</span>
+              <strong>{backendInsights.dataQuality}%</strong>
+              <p>Based on exam dates, subject count, syllabus detail, and missed-hour pressure.</p>
+            </article>
+            <article>
+              <span>Study consistency</span>
+              <strong>{backendInsights.consistencyScore}%</strong>
+              <p>Uses completed focus sessions against the planned weekly capacity.</p>
+            </article>
+          </div>
+          <div className="score-table">
+            <div className="score-row header">
+              <span>Subject</span>
+              <span>Priority</span>
+              <span>Score details</span>
+              <span>Backend action</span>
+            </div>
+            {backendInsights.explanations.map((item) => (
+              <div className="score-row" key={item.name}>
+                <strong>{item.name}</strong>
+                <span className={`level ${item.level.toLowerCase()}`}>{item.level} - {item.priorityScore}</span>
+                <span>
+                  U{item.urgencyScore} + D{item.difficultyScore} + C{item.confidenceGapScore} + S{item.syllabusLoadScore}
+                  {item.momentumBonus ? ` - M${item.momentumBonus}` : ""}
+                </span>
+                <span>{item.action}</span>
+              </div>
+            ))}
+          </div>
+          <div className="backend-log">
+            {backendInsights.backendLog.map((log) => <span key={log}>{log}</span>)}
           </div>
         </section>
 
